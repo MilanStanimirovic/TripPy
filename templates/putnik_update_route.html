@@ -1,0 +1,188 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Update Route') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    {% if session['dark_mode'] %}
+      <link rel="stylesheet" href="{{url_for('static', filename='styles/dark-mode.css')}}">
+    {% else %}
+      <link rel="stylesheet" href="{{url_for('static', filename='styles/design.css')}}">
+    {% endif %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light" >
+  <a class="navbar-brand" href="#" style="padding-left: 10px; padding-bottom: 0; padding-top: 0" onclick="dashboard()"><img src="{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}" alt="Logo" class="logo" id="logo"></a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRoutes" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Routes') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownRoutes">
+            <a class="dropdown-item" onclick="putnik_add_route()">{{ _('Create New Route') }}</a>
+          <a class="dropdown-item" onclick="putnik_show_all_routes()">{{ _('All Routes') }}</a>
+          <a class="dropdown-item" onclick="putnik_show_my_routes()">{{ _('My Routes') }}</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAds" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Businesses') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownAds">
+          <a class="dropdown-item" onclick="putnik_show_businesses()">{{ _('Show All Businesses') }}</a>
+        </div>
+      </li>
+    </ul>
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {{ _('Profile') }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownProfile">
+          <li><a class="dropdown-item" href="#" onclick="profile()">{{ _('My Profile') }}</a></li>
+          <li><a class="dropdown-item" href="#" onclick="settings()">{{ _('Settings') }}</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#" onclick="logout()">{{ _('Logout') }}</a></li>
+        </ul>
+     </ul>
+  </div>
+</nav>
+
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="mb-3 card-title">{{ _('Update Route') }}</h1>
+                <form method="POST">
+                        <div class="mb-3">
+                            <label for="routename" class="form-label">{{ _('Route Name') }}:</label>
+                            <input type="text" class="form-control" id="routename" name="routename" required value="{{ route.routename }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">{{ _('Description') }}:</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ route.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startdate" class="form-label">{{ _('Start Date') }}:</label>
+                            <input type="date" class="form-control" id="startdate" name="startdate" required value="{{ route.startdate.isoformat() }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="enddate" class="form-label">{{ _('End Date') }}:</label>
+                            <input type="date" class="form-control" id="enddate" name="enddate" required value="{{ route.enddate.isoformat() }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="public" class="form-label">{{ _('Visibility') }}:</label>
+                            <select class="form-control" id="public" name="public" required>
+                                <option value="public" {% if route.public == 'public' %}selected{% endif %}>{{ _('Public') }}</option>
+                                <option value="private" {% if route.public == 'private' %}selected{% endif %}>{{ _('Private') }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="route_duration" class="form-label">{{ _('Route Duration') }}:</label>
+                            <input type="text" class="form-control" id="route_duration" value="{{ route_duration }}" disabled>
+                        </div>
+                        <div id="button_container" class="mb-3"></div> <!-- Itinerary div (don't remove) -->
+                
+                        <div class="mb-3">
+                            <label for="participants" class="form-label">{{ _('Participants') }}:</label>
+                            <select class="form-control" name="participants" id="participants" multiple>
+                                {% for user in users %}
+                                    <option value="{{ user.userid }}" {% if user.userid in current_participants %}selected{% endif %}>{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+            
+                        <div class="mb-3 d-flex justify-content-between align-items-center mt-3">
+                            <a onclick="history.back()" class="btn btn-primary mt-3">{{ _('Go Back') }}</a>
+                            <button type="submit" class="btn btn-success">{{ _('Update') }}</button>
+                        </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='scripts/script_putnik.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+
+<script src="{{ url_for('static', filename='scripts/script_putnik.js') }}"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#participants').select2({
+            placeholder: "Select participants",
+            allowClear: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#participants').select2({
+            placeholder: "Select participants",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+<script>
+    const logo = document.getElementById('logo');
+    const darkMode = {{ session['dark_mode']|lower }};
+
+    const originalSrc = darkMode
+        ? "{{ url_for('static', filename='images/TripPyLogoOrange.svg') }}"
+        : "{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}";
+
+    const hoverSrc = darkMode
+        ? "{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}"
+        : "{{ url_for('static', filename='images/TripPyLogoOrange.svg') }}"
+
+    logo.src = originalSrc;
+
+    logo.addEventListener('mouseover', function() {
+        logo.src = hoverSrc;
+    });
+
+    logo.addEventListener('mouseout', function() {
+        logo.src = originalSrc;
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var startDate = new Date("{{ route.startdate.isoformat() }}");
+        var endDate = new Date("{{ route.enddate.isoformat() }}");
+        var routeDuration = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+        document.getElementById("route_duration").value = routeDuration + " days";
+
+        var buttonContainer = document.getElementById("button_container");
+        for (var i = 0; i < routeDuration; i++) {
+            var button = document.createElement("button");
+            button.type = "button";
+            button.classList.add("btn", "btn-secondary", "me-2");
+            button.textContent = "Day " + (i + 1);
+            button.addEventListener('click', function() {
+                var routeId = "{{ route.routeid }}";
+                var dayNumber = this.textContent.split(" ")[1];
+                window.location.href = "/itinerary/" + routeId + "/" + dayNumber;
+            });
+            buttonContainer.appendChild(button);
+        }
+    });
+</script>
+
+</body>
+</html>
+

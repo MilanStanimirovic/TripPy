@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ business.businessname }}</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% if session['dark_mode'] %}
+      <link rel="stylesheet" href="{{url_for('static', filename='styles/dark-mode.css')}}">
+    {% else %}
+      <link rel="stylesheet" href="{{url_for('static', filename='styles/design.css')}}">
+    {% endif %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#" style="padding-left: 10px; padding-bottom: 0; padding-top: 0" onclick="dashboard()"><img src="{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}" alt="{{ _('Logo') }}" class="logo" id="logo"></a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUsers" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Users') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownAds">
+          <a class="dropdown-item" onclick="admin_users()">{{ _('All Users') }}</a>
+          <a class="dropdown-item" onclick="admin_add_user()">{{ _('Add User') }}</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRoutes" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Routes') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownRoutes">
+          <a class="dropdown-item" onclick="admin_show_routes()">{{ _('All Routes') }}</a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAds" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Businesses') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownAds">
+          <a class="dropdown-item" onclick="admin_show_businesses()">{{ _('All Businesses') }}</a>
+          <a class="dropdown-item" onclick="admin_business_requests()">{{ _('Business Requests') }}</a>
+        </div>
+      </li>
+     <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLocations" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ _('Locations') }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownAds">
+          <a class="dropdown-item"  onclick="admin_add_location()">{{ _('Add Location') }}</a>
+        </div>
+      </li>
+
+    </ul>
+    <ul class="navbar-nav ms-auto">
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {{ _('Profile') }}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownProfile">
+      <li><a class="dropdown-item" href="#" onclick="profile()">{{ _('My Profile') }}</a></li>
+      <li><a class="dropdown-item" href="#" onclick="settings()">{{ _('Settings') }}</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="#" onclick="logout()">{{ _('Logout') }}</a></li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ business.businessname }}</h1>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ _('Business Details') }}</h5>
+            <p class="card-text">{{ business.description }}</p>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">{{ _('Location') }}: {{ business.location.address }}</li>
+                <li class="list-group-item">{{ _('Price') }}: {{ business.cena }} {{ business.currency }}</li>
+                {% if image_paths %}
+                    {% for image_path in image_paths %}
+                        <li class="list-group-item">
+                            <img src="{{ url_for('static', filename=image_path) }}" alt="{{ _('Business Image') }}" class="img-fluid mb-2" style="max-width: 300px;">
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">{{ _('No images') }}</li>
+                {% endif %}
+            </ul>
+            <div id="mapContainer" class="map-container"></div>
+            <div class="mb-3">
+                <a onclick="history.back()" class="btn btn-primary mt-3">{{ _('Go Back') }}</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/script_admin.js') }}"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        showMap('{{ business.location.address }}', '{{ business.businessid }}');
+    });
+</script>
+<script>
+function showMap(address, businessId) {
+
+    var mapContainer = document.createElement('div');
+    mapContainer.id = 'map' + businessId;
+    mapContainer.classList.add('map-container');
+
+
+    var mapDiv = document.getElementById('mapContainer'); // Change 'mapContainer' to the ID of the element where you want to append the map
+    mapDiv.appendChild(mapContainer);
+
+
+    var map = L.map(mapContainer.id).setView([0, 0], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                var lat = data[0].lat;
+                var lon = data[0].lon;
+                map.setView([lat, lon], 13);
+                L.marker([lat, lon]).addTo(map);
+            } else {
+                console.error('No location data received');
+                alert('Location not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching location data:', error);
+            alert('Error fetching location data');
+        });
+}
+
+
+</script>
+<script>
+    const logo = document.getElementById('logo');
+    const darkMode = {{ session['dark_mode']|lower }};
+
+    const originalSrc = darkMode
+        ? "{{ url_for('static', filename='images/TripPyLogoOrange.svg') }}"
+        : "{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}";
+
+    const hoverSrc = darkMode
+        ? "{{ url_for('static', filename='images/TripPyLogoPurple.svg') }}"
+        : "{{ url_for('static', filename='images/TripPyLogoOrange.svg') }}"
+
+    logo.src = originalSrc;
+
+    logo.addEventListener('mouseover', function() {
+        logo.src = hoverSrc;
+    });
+
+    logo.addEventListener('mouseout', function() {
+        logo.src = originalSrc;
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+.table {
+    --table-header-bg: #3316a0 !important;
+    --table-header-text-color: #ffffff !important;
+}
+
+.table > :not(caption) > * > * {
+    color: #fff;
+    background-color: #555;
+    border-bottom-width: 0;
+}
+
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: var(--table-bg-even) !important;
+    --bs-table-bg-type: #444;
+}
+
+.no-underline {
+    color: var(--table-text-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.custom-table {
+    border-radius: 8px;
+    overflow: hidden; /* To apply rounded corners */
+}
+
+.custom-table thead th {
+    text-align: center;
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text-color);
+}
+
+.btn-link {
+    color: inherit; /* Inherit color from parent */
+}
+
+.nowrap {
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+th button.btn-link {
+    position: relative;
+    top: -2px; /* Move button up by 2px */
+}
+
+.table img {
+    border-radius: 8px;
+}
+
+.text-center {
+    text-align: center;
+}
